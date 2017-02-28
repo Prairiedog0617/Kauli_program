@@ -32,6 +32,7 @@
 #inculde <iomanip.h>
 #include “ip_link.h”
 
+
 /***********************************************************************************/
 //					Class Definition Block
 // Classes are defined below
@@ -65,11 +66,25 @@ Class Elevator
      Int floor_request;  // Receives a floor request from the controller.
      Int elevator_status: // 1 = In operations, 0 = Down for maintenance
      Int trip_cntr;    // Keeps track of trips
-     Int trip_max = 100;   // If trip_cntr = trip_max elevator_status = 0;
+     Int trip_max;   // If trip_cntr = trip_max elevator_status = 0;
      
 // Public class variables defined below
 Public:
 //  Public variables
+Elevator()
+{ // Begin Constructor
+   current_floor = 1;
+   direction = 1;
+   empty_state = 0;
+   next_floor = 1;
+   door_status = 0;
+   floor_request = 1;
+   elevator_status = 1;
+   trip_cntr = 0;
+   trip_max = 100;
+   
+}; // End Constructor
+~Elevator();
 
 // Public inline functions
     int get_floor(void)  { return (current_floor); }
@@ -82,7 +97,7 @@ Public:
 
 // Class functions
 int Elevator::floor_request(int service_call)
- { // Begin floor_request()
+ { // Begin floor_request() Addressed controllers need to send empty elevator to new floor.
      if(elevator_status == 1 door_status == 0 && empty_state == 0 )
      { // Elevator Operational , door closed and empty, ok to address service request.
        floor_request = service_call;
@@ -96,8 +111,22 @@ int Elevator::floor_request(int service_call)
      Return(1);
  } // End floor_request()
 
-int Elevator::new_floor(int next_floor)
- { // Begin new_floor()
+int Elevator::new_floor(int next_floor,int Top_Floor, int Bottom_Floor)
+ { // Begin new_floor() Addresses the customer request for a new floor within the elevator.
+     if(elevator_status == 1 && next_floor < Top_Floor && next_floor > Bottom_Floor)
+     { // Elevator Operational. and desired floor in range of building.
+       push(path, next_floor);
+       return(0);  // Service request submitted
+     }
+     else
+     {
+       return(1); // Service request declined
+     }
+     Return(1);
+ } // End new_floor()
+ 
+ int Elevator::new_floor(int next_floor)
+ { // Begin new_floor() Addresses the customer request for a new floor withinn the elevator.
      if(elevator_status == 1 )
      { // Elevator Operational.
        push(path, next_floor);
@@ -109,8 +138,6 @@ int Elevator::new_floor(int next_floor)
      }
      Return(1);
  } // End new_floor()
- 
- 
 
 float Class_name::function_name2(const int d, cons tint m, …)
  { // Begin function_name2 ()
@@ -121,9 +148,9 @@ float Class_name::function_name2(const int d, cons tint m, …)
 } ; // End of class definition
 
 /***********************************************************************************/
-// Class name:  class_name
+// Class name:  Dispatch
 //
-// Functionality:
+// Functionality: This object retrieves floor requests from elevator hardware
 //
 // Parameters:
 // 
@@ -227,12 +254,29 @@ Foreach  $test_val  (@list  )
 /******************************************************************************/
 Void Main()
 { // Begin Main()
-// Main Program variable definitions.
-Int $rtn_cd;
-char $output_file = “c:/documents/c++_file_out.txt”;
-float rate;
-
-
+// Global Program variable definitions.
+  int Elevator_cnt = 4;
+  int Top_Floor = 4;
+  int Bottom_Floor = 1;
+  int loop_cntrl = 1;
+  // Initialize Elevators: Assume building opens at 8:00 and you start with all on floor 1
+  // Instantiate Elevators
+  Elevator Ele_1;
+  Elevator Ele_2;
+  Elevator Ele_3;
+  Elevator Ele_4;
+  // Assume the object constructors initialize all Elevator Internals.
+  // Send all operational elevators to ground floor on startup.
+     Ele_1::floor_request(1);
+     Ele_2::floor_request(1);
+     Ele_3::floor_request(1);
+     Ele_4::floor_request(1);
+// 
+ While(loop_cntrl)
+ { Primary loop control to manage elevator dispatch control
+      
+      
+ }
 // Terminate execution of the program.
 Exit 0;
 // End of Main()
