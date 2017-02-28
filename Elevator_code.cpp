@@ -58,7 +58,8 @@ Class Elevator
      Int current_floor;
      Int direction;  // 1 = up, -1 = down
      Int empty_state;  // 1 = Occupieed, 0 = Empty
-     Int path;   // This should be a stack where desried floors get pushed on/popped off.
+     Stack path;   // This should be a stack where desried floors get pushed on/popped off.
+                   // Flaw in this design it should be a FIFO rather than a LIFO. 
      Int next_floor;  // Value popped off path tells elevator where to go next.
      Int door_status;  // 1 = open, 0 = closed.
      Int floor_request;  // Receives a floor request from the controller.
@@ -77,15 +78,39 @@ Public:
     int get_door_state(void)  { return (door_status); }
     int get_status(void)  { return (elevator_status); }
     int get_trip_cnt(void) { return (trip_cntr); }
-    void give_floor_request(int service_call) 
-    { floor_request = service_call;}
+    
 
 // Class functions
-int Class_name::function_name1(const int d, cons tint m, …)
- { // Begin function_name1()
-
+int Elevator::floor_request(int service_call)
+ { // Begin floor_request()
+     if(elevator_status == 1 door_status == 0 && empty_state == 0 )
+     { // Elevator Operational , door closed and empty, ok to address service request.
+       floor_request = service_call;
+       push(path, floor_request);
+       return(0);  // Service request submitted
+     }
+     else
+     {
+       return(1); // Service request declined
+     }
      Return(1);
- } // End function_name1()
+ } // End floor_request()
+
+int Elevator::new_floor(int next_floor)
+ { // Begin new_floor()
+     if(elevator_status == 1 )
+     { // Elevator Operational.
+       push(path, next_floor);
+       return(0);  // Service request submitted
+     }
+     else
+     {
+       return(1); // Service request declined
+     }
+     Return(1);
+ } // End new_floor()
+ 
+ 
 
 float Class_name::function_name2(const int d, cons tint m, …)
  { // Begin function_name2 ()
